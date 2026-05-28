@@ -13,7 +13,7 @@ def checar_quina(x, y, w_tel, l_tel, dist_quina=1.0):
 
 
 def dimensionar(
-    w_telhado, l_telhado, w_placa, l_placa, borda=0.5, espacamento=0.02
+    w_telhado, l_telhado, w_placa, l_placa, borda=0.5, espacamento=0.05
 ):
     """Gera um DataFrame com as coordenadas de todos os painéis válidos."""
     dados_paineis = []
