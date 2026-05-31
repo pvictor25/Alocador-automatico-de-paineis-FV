@@ -1,126 +1,149 @@
-"""Módulo responsável pela renderização gráfica dos arranjos solares."""
+import sys
+import PyQt6.QtWidgets as QtWidgets
+import PyQt6.QtCore as QtCore
 
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Alocador automático de Painéis Fotovoltaicos")
+        self.setMinimumSize(QtCore.QSize(600, 400))
+
+        # 1. CRIAR O GERENCIADOR DE TELAS (STACKED WIDGET)
+        self.telas = QtWidgets.QStackedWidget()
+        self.setCentralWidget(self.telas)
+
+        # 2. CONSTRUIR AS TELAS
+        self.criar_tela_inicial()
+        self.criar_tela_novo_projeto()
+
+        # 3. ADICIONAR AS TELAS AO GERENCIADOR
+        # Tela Inicial será o índice 0, Tela de Novo Projeto será o índice 1
+        self.telas.addWidget(self.tela_inicial)
+        self.telas.addWidget(self.tela_novo_projeto)
+
+    def criar_tela_inicial(self):
+        """Monta a primeira tela (Menu Inicial)"""
+        self.tela_inicial = QtWidgets.QWidget()
+        self.tela_inicial.setStyleSheet("background-color: #f1edda;")
+
+        # Componentes de texto
+        self.titulo_inicio = QtWidgets.QLabel("Bem-vindo ao Alocador de Painéis!")
+        self.instrucao_inicio = QtWidgets.QLabel("Inicie um novo projeto ou abra um arquivo existente para começar.")
+
+        self.titulo_inicio.setStyleSheet("QLabel { color: #4d85ef; font-family: 'Arial'; font-size: 22px; font-weight: bold; }")
+        self.instrucao_inicio.setStyleSheet("QLabel { color: #04132f; font-family: 'Arial'; font-size: 12px; font-weight: bold; }")
+        self.titulo_inicio.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.instrucao_inicio.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        # Botões
+        self.botao_criar = QtWidgets.QPushButton("Criar novo projeto")
+        self.botao_abrir = QtWidgets.QPushButton("Abrir projeto existente")
+        self.botao_criar.setFixedSize(200, 80) 
+        self.botao_abrir.setFixedSize(200, 80) 
+
+        # Estilização dos botões
+        estilo_botoes_inicio = """
+            QPushButton {
+                background-color: #4d85ef; color: white; font-size: 16px; font-weight: bold;
+                border-radius: 10px; padding: 10px;
+            }
+            QPushButton:hover { background-color: #3172ec; }
+        """
+        self.botao_criar.setStyleSheet(estilo_botoes_inicio)
+        self.botao_abrir.setStyleSheet(estilo_botoes_inicio)
+
+        # CONEXÃO DO BOTÃO: Mudar para a tela de índice 1
+        self.botao_criar.clicked.connect(lambda: self.telas.setCurrentIndex(1))
+
+        # Organização dos Layouts da Tela Inicial
+        layout_principal = QtWidgets.QVBoxLayout()
+        layout_principal.addStretch(2)
+        layout_principal.addWidget(self.titulo_inicio)
+        layout_principal.addWidget(self.instrucao_inicio)
+        layout_principal.addSpacing(15)
+        
+        layout_botoes = QtWidgets.QHBoxLayout()
+        layout_botoes.addWidget(self.botao_criar)
+        layout_botoes.addWidget(self.botao_abrir)
+        layout_principal.addLayout(layout_botoes)
+        
+        layout_principal.addStretch(2)
+        self.tela_inicial.setLayout(layout_principal)
+
+    def criar_tela_novo_projeto(self):
+        """Monta a segunda tela (Formulário / Configuração do Projeto)"""
+        self.tela_novo_projeto = QtWidgets.QWidget()
+        self.tela_novo_projeto.setStyleSheet("background-color: #f1edda;")
+
+        layout_modo = QtWidgets.QVBoxLayout()
+        
+        # Componentes de texto
+        self.titulo_modo = QtWidgets.QLabel("Selecione o modo de criação do projeto")
+        self.instrucao_modo = QtWidgets.QLabel("O modo simplificado realiza o dimensionamento a partir de um retângulo, \njá o modo avançado realiza o dimensionamento a partir de geometrias complexas.")
+
+        self.titulo_modo.setStyleSheet("QLabel { color: #4d85ef; font-family: 'Arial'; font-size: 22px; font-weight: bold; }")
+        self.instrucao_modo.setStyleSheet("QLabel { color: #04132f; font-family: 'Arial'; font-size: 12px; }")
+        self.titulo_modo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.instrucao_modo.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+        # Botões
+        self.botao_modo_simp = QtWidgets.QPushButton("Modo simplificado")
+        self.botao_modo_avan = QtWidgets.QPushButton("Modo avançado")
+        self.botao_modo_simp.setFixedSize(200, 80) 
+        self.botao_modo_avan.setFixedSize(200, 80) 
+
+        # Estilização dos botões
+        estilo_botoes_modo = """
+            QPushButton {
+                background-color: #4d85ef; color: white; font-size: 16px; font-weight: bold;
+                border-radius: 10px; padding: 10px;
+            }
+            QPushButton:hover { background-color: #3172ec; }
+        """
+        self.botao_modo_simp.setStyleSheet(estilo_botoes_modo)
+        self.botao_modo_avan.setStyleSheet(estilo_botoes_modo)
+
+        # Botão para voltar à tela inicial caso o usuário queira
+        botao_voltar = QtWidgets.QPushButton("← Voltar")
+        botao_voltar.setFixedSize(60, 30)
+        botao_voltar.setStyleSheet("""
+            QPushButton { background-color: #e4ddb9; color: #04132f; font-weight: bold; border-radius: 5px; }
+            QPushButton:hover { background-color: #eec7ba; }
+        """)
+        
+        # CONEXÃO DO BOTÃO VOLTAR: Mudar de volta para o índice 0
+        botao_voltar.clicked.connect(lambda: self.telas.setCurrentIndex(0))
+        # CONEXÃO DO BOTÃO AVANÇAR: Mudar para o índice 2
+        self.botao_modo_simp.clicked.connect(lambda: self.telas.setCurrentIndex(0))
+
+        # Adicionando componentes no layout da segunda tela
+        layout_modo.addWidget(self.titulo_modo)
+        layout_modo.addWidget(self.instrucao_modo)
+
+        # Organização dos Layouts da Tela Inicial
+        layout_modo = QtWidgets.QVBoxLayout()
+        layout_modo.addStretch(1)
+        layout_modo.addWidget(self.titulo_modo)
+        layout_modo.addWidget(self.instrucao_modo)
+        layout_modo.addSpacing(15)
+
+        layout_botoes_modo = QtWidgets.QHBoxLayout()
+        layout_botoes_modo.addWidget(self.botao_modo_simp)
+        layout_botoes_modo.addWidget(self.botao_modo_avan)
+        layout_modo.addLayout(layout_botoes_modo)
+
+        
+        #layout_modo.addSpacing(30)
+        
+        # Aqui você poderá futuramente colocar seus inputs de dimensionamento...
+        layout_modo.addStretch(1) 
+        
+        layout_modo.addWidget(botao_voltar, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.tela_novo_projeto.setLayout(layout_modo)
 
 
-def gerar_patche_telhado(w_tel, l_tel):
-    """Cria o retângulo que representa o perímetro do telhado."""
-    return patches.Rectangle(
-        (0, 0),
-        w_tel,
-        l_tel,
-        fill=False,
-        color="red",
-        linewidth=2,
-        label="Borda do Telhado"
-    )
-
-
-def gerar_patche_painel(x_min, y_min, x_max, y_max):
-    """Cria o retângulo que representa um painel fotovoltaico."""
-    largura = x_max - x_min
-    altura = y_max - y_min
-    return patches.Rectangle(
-        (x_min, y_min),
-        largura,
-        altura,
-        facecolor="blue",
-        alpha=0.6,
-        edgecolor="black"
-    )
-
-
-def desenhar_eixo(ax, df_paineis, w_tel, l_tel, titulo):
-    """Preenche e configura um eixo específico com o arranjo de painéis."""
-    # Desenha o telhado
-    ax.add_patch(gerar_patche_telhado(w_tel, l_tel))
-
-    # Desenha os painéis
-    for _, row in df_paineis.iterrows():
-        ax.add_patch(
-            gerar_patche_painel(
-                x_min=row["x_inf_esq"],
-                y_min=row["y_inf_esq"],
-                x_max=row["x_inf_dir"],
-                y_max=row["y_sup_esq"]
-            )
-        )
-
-    # Configurações de layout do subgráfico
-    ax.set_xlim(-1, w_tel + 1)
-    ax.set_ylim(-1, l_tel + 1)
-    ax.set_aspect("equal", adjustable="box")
-    ax.set_title(f"{titulo}: {len(df_paineis)} Painéis")
-    ax.set_xlabel("Largura (m)")
-    ax.set_ylabel("Comprimento (m)")
-    ax.grid(True, linestyle="--", alpha=0.5)
-
-
-def plotar_janela_independente(df_retrato, df_paisagem, w_tel, l_tel):
-    """Abre uma janela padrão do Matplotlib com os dois arranjos lado a lado."""
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # Renderiza cada lado
-    desenhar_eixo(ax1, df_retrato, w_tel, l_tel, "Orientação Retrato")
-    desenhar_eixo(ax2, df_paisagem, w_tel, l_tel, "Orientação Paisagem")
-
-    # Texto informativo centralizado na base da janela
-    texto_base = (
-        f"Comparativo Técnico | Retrato: {len(df_retrato)} painéis "
-        f"vs. Paisagem: {len(df_paisagem)} painéis"
-    )
-    fig.text(
-        0.5, 0.02,
-        texto_base,
-        ha="center",
-        fontsize=12,
-        fontweight="bold"
-    )
-
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.15)
-    plt.show()
-
-
-class CanvasJanela(FigureCanvas):
-    """Componente de plotagem para ser embutido dentro do PySide6."""
-
-    def __init__(self, largura=10, altura=5, dpi=100):
-        self.fig = Figure(figsize=(largura, altura), dpi=dpi)
-        # Cria os dois subplots lado a lado (1 linha, 2 colunas)
-        self.ax1 = self.fig.add_subplot(121)
-        self.ax2 = self.fig.add_subplot(122)
-        self.texto_qtd = None
-        super().__init__(self.fig)
-
-    def atualizar_grafico(self, df_retrato, df_paisagem, w_tel, l_tel):
-        """Limpa o canvas e renderiza as duas orientações simultaneamente."""
-        self.ax1.clear()
-        self.ax2.clear()
-
-        if self.texto_qtd:
-            self.texto_qtd.remove()
-
-        # Desenha os arranjos nos eixos correspondentes
-        desenhar_eixo(self.ax1, df_retrato, w_tel, l_tel, "Orientação Retrato")
-        desenhar_eixo(self.ax2, df_paisagem, w_tel, l_tel, "Orientação Paisagem")
-
-        # Atualiza o texto global inferior
-        texto_base = (
-            f"Comparativo Técnico | Retrato: {len(df_retrato)} painéis "
-            f"vs. Paisagem: {len(df_paisagem)} painéis"
-        )
-        self.texto_qtd = self.fig.text(
-            0.5, 0.02,
-            texto_base,
-            ha="center",
-            fontsize=11,
-            fontweight="bold"
-        )
-
-        self.fig.tight_layout()
-        self.fig.subplots_adjust(bottom=0.15)
-        self.draw()
+app = QtWidgets.QApplication(sys.argv)
+window = MainWindow()
+window.show()
+app.exec()
