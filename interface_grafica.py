@@ -183,8 +183,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 font-weight: bold;
                 font-size: 14px;
                 color: #04132f;
-                background-color: #d6c770;  
-                border: 1px solid #bfae7a;
+                background-color: #d8cd97;  
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
