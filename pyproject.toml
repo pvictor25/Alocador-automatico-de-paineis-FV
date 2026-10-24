@@ -1,0 +1,21 @@
+[project]
+name = "alocador-automatico-de-paineis-fv"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "pvictor25", email = "pvictor.lima@alu.ufc.br" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "pandas>=3.1.0",
+    "pyqt6>=6.11.0",
+]
+
+[project.scripts]
+alocador-automatico-de-paineis-fv = "alocador_automatico_de_paineis_fv:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
